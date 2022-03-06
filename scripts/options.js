@@ -1,3 +1,12 @@
 "use strict";
+document.addEventListener("DOMContentLoaded", () => {
+const btn = document.querySelector('#togBtn');
+if (btn) {
 
-console.log("'Allo 'Allo! Option");
+    btn.addEventListener('click', () => {
+        const ifEnabled = document.querySelector('#togBtn').checked;
+        chrome.management.setEnabled(
+ "mddmekafepnknkghbbogmhaiknlabdgc",ifEnabled );
+})
+}
+})

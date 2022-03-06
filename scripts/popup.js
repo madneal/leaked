@@ -56,6 +56,7 @@ var parseSourceMap = function parseSourceMap(name, filenames, contents) {
           url: reader.result
         });
       };
+      chrome.browserAction.setBadgeText({ text: "" });
     });
 };
 

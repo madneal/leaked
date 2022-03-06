@@ -20,7 +20,8 @@
     "<all_urls>",
     "background",
     "downloads",
-    "tabs"
+    "tabs",
+    "management"
   ],
   "options_ui": {
     "page": "options.html",

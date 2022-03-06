@@ -5,10 +5,15 @@ sourceMap.SourceMapConsumer.initialize({
         "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm"
     });
 
-const sourceFileList = {};
+let sourceFileList = {};
+chrome.tabs.onActivated.addListener(() => {
+  sourceFileList = {};
+  setBadgeText(Object.keys(sourceFileList).length);
+})
+
 chrome.webRequest.onBeforeRequest.addListener(async (details) => {
   let text = "";
-  const tabs = await chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, async (tabs) => {
+  await chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, async (tabs) => {
     if (details.type === "script" && /\.js$/.test(details.url)
     && !/^chrome-extension:\/\//.test(details.url)) {
       text = await getMap(details.url);
@@ -19,16 +24,17 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
       sources: consumer._absoluteSources,
       page: tabs[0]
     }
-    setBadgeText(Object.keys(sourceFileList).length);
     consumer.destroy();
   }
-  }
-  });
+}
+});
+setBadgeText(Object.keys(sourceFileList).length);
 
 }, {
   urls: ["<all_urls>"]
 });
 
+// setBadgeText(0);
 const getMap = async (url) => {
   url = url + ".map";
   const res = await fetch(url)
