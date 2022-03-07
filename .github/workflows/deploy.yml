@@ -2,4 +2,5 @@ name: Chrome Extension upload & publish
 on: [push]
 jobs:
   runs-on: ubuntu-latest
-  uses: Passiverecords/chrome-extension-upload-action@1.4.1
+  steps:
+    - uses: Passiverecords/chrome-extension-upload-action@1.4.1
