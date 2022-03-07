@@ -16,7 +16,9 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
   await chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, async (tabs) => {
     if (details.type === "script" && /\.js$/.test(details.url)
     && !/^chrome-extension:\/\//.test(details.url)) {
-      text = await getMap(details.url);
+      const isSourcemap = await isSourcemap(details.url);
+      if (isSourcemap) {
+      text = await request(details.url + ".map");
           if (text) {
     const consumer = await new sourceMap.SourceMapConsumer(text);
     sourceFileList[details.url] = {
@@ -25,6 +27,8 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
       page: tabs[0]
     }
     consumer.destroy();
+      }
+
   }
 }
 });
@@ -34,14 +38,17 @@ setBadgeText(Object.keys(sourceFileList).length);
   urls: ["<all_urls>"]
 });
 
-// setBadgeText(0);
-const getMap = async (url) => {
-  url = url + ".map";
+const isSourcemap = async (url) => {
+  const res = await request(url);
+  return res.includes("//# sourceMappingURL=");
+}
+
+const request = async (url) => {
   const res = await fetch(url)
   if (res.ok) {
     return res.text();
   } else {
-    console.error("Request to " + url + " error with status " + res.status);
+    console.info("Request to " + url + " error with status " + res.status);
   }
 }
 
