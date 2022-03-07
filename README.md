@@ -1,2 +1,3 @@
-# google-web-dev-cn
-The Chinese version of google web development tools.
+# leaked
+
+This Chrome extension is developed for check if the webpack sourceMap is enabled and download the source code when sourceMap enabled.
