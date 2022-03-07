@@ -1,6 +1,60 @@
-name: Chrome Extension upload & publish
-on: [push]
+name: Deploy Chrome Extension
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master branch
+  push:
+    branches:
+      - master
+
 jobs:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: Passiverecords/chrome-extension-upload-action@1.4.1
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Get changed files using defaults
+      id: changed-files
+      uses: tj-actions/changed-files@v5.3
+    - name: npm install, build extension
+      run: |
+        npm i
+        npm run build:chrome-extension-eth-mainnet
+        cp ./build-chrome-extension/zipped-chrome-extension-eth.zip ./zipped-chrome-extension-eth.zip
+        npm run build:chrome-extension-eth-testnet
+        cp ./build-chrome-extension/zipped-chrome-extension-eth-testnet.zip ./zipped-chrome-extension-eth-testnet.zip
+        ls
+    - uses: actions/upload-artifact@v2
+      with:
+        name: extensions
+        path: |
+          ./zipped-chrome-extension-eth.zip
+          ./zipped-chrome-extension-eth-testnet.zip
+    - name: publish bsc extension to chrome web store
+      if: contains(steps.changed-files.outputs.modified_files, 'manifest_eth.json')
+      uses: Passiverecords/chrome-extension-upload-action@1.4.1
+      with:
+        refresh-token: ${{ secrets.CHROMEUPDATETOKEN }}
+        client-id: ${{ secrets.CLIENTID }}
+        client-secret: ${{ secrets.CLIENTSECRET }}
+        file-name: 'zipped-chrome-extension-eth.zip'
+        app-id: 'oldojieloelkkfeacfinhcngmbkepnlm'
+        publish: false
+    - name: publish rinkeby extension to chrome web store
+      if: contains(steps.changed-files.outputs.modified_files, 'manifest_eth.json')
+      uses: Passiverecords/chrome-extension-upload-action@1.4.1
+      with:
+        refresh-token: ${{ secrets.CHROMEUPDATETOKEN }}
+        client-id: ${{ secrets.CLIENTID }}
+        client-secret: ${{ secrets.CLIENTSECRET }}
+        file-name: 'zipped-chrome-extension-eth-testnet.zip'
+        app-id: 'lihimbnmcnbecbnfbbkccoblfjaomiil'
+        publish: false
