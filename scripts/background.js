@@ -16,9 +16,8 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
   await chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, async (tabs) => {
     if (details.type === "script" && /\.js$/.test(details.url)
     && !/^chrome-extension:\/\//.test(details.url)) {
-      const isSourcemap = await isSourcemap(details.url);
-      if (isSourcemap) {
-      text = await request(details.url + ".map");
+
+     const text = await request(details.url + ".map");
           if (text) {
     const consumer = await new sourceMap.SourceMapConsumer(text);
     sourceFileList[details.url] = {
@@ -27,7 +26,7 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
       page: tabs[0]
     }
     consumer.destroy();
-      }
+      
 
   }
 }
