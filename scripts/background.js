@@ -17,8 +17,8 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
     if (details.type === "script" && /\.js$/.test(details.url)
     && !/^chrome-extension:\/\//.test(details.url)) {
 
-     const text = await request(details.url + ".map");
-          if (text) {
+    const text = await request(details.url + ".map");
+        if (text) {
     const consumer = await new sourceMap.SourceMapConsumer(text);
     sourceFileList[details.url] = {
       content: consumer.sourcesContent,
