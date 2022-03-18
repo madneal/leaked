@@ -12,7 +12,6 @@ chrome.tabs.onActivated.addListener(() => {
 })
 
 chrome.webRequest.onBeforeRequest.addListener(async (details) => {
-  let text = "";
   await chrome.tabs.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, async (tabs) => {
     if (details.type === "script" && /\.js$/.test(details.url)
     && !/^chrome-extension:\/\//.test(details.url)) {
@@ -26,8 +25,6 @@ chrome.webRequest.onBeforeRequest.addListener(async (details) => {
       page: tabs[0]
     }
     consumer.destroy();
-      
-
   }
 }
 });
@@ -36,11 +33,6 @@ setBadgeText(Object.keys(sourceFileList).length);
 }, {
   urls: ["<all_urls>"]
 });
-
-const isSourcemap = async (url) => {
-  const res = await request(url);
-  return res.includes("//# sourceMappingURL=");
-}
 
 const request = async (url) => {
   const res = await fetch(url)
@@ -51,8 +43,8 @@ const request = async (url) => {
   }
 }
 
-var setBadgeText = function setBadgeText(num) {
-  var text = num > 0 ? "" + num : "";
+const setBadgeText = function setBadgeText(num) {
+  const text = num > 0 ? "" + num : "";
   chrome.browserAction.setBadgeText({ text: text });
 };
 
