@@ -7,7 +7,6 @@ const port = chrome.extension.connect({
 let contentMap = {};
 port.postMessage("getAllSourceFiles");
 port.onMessage.addListener(function (list) {
-    console.log(list);
     list.forEach(item => {
         contentMap[item.url] = {
             title: item.page.title,
@@ -29,13 +28,18 @@ document.querySelector('#app a').addEventListener("click", async () => {
     });
 })
 
+function createEle(filename) {
+    const a = document.createElement('a')
+    a.innerText = filename;
+    return a;
+}
 
-const parseFileName = function parseFileName(path) {
+function parseFileName(path) {
     const filename = path.split("/");
     return filename[filename.length - 1];
 };
 
-const parseSourceMap = function parseSourceMap(name, filenames, contents) {
+function parseSourceMap(name, filenames, contents) {
     const zip = new JSZip();
     filenames.forEach((filename, index) => {
         if (filename.indexOf("webpack://") !== 0) {
@@ -60,16 +64,11 @@ const parseSourceMap = function parseSourceMap(name, filenames, contents) {
     });
 };
 
-var addZipFile = function addZipFile(root, filename, content) {
+function addZipFile(root, filename, content) {
     var folders = filename.split("/");
     var folder = root;
     for (var i = 0; i < folders.length - 1; i++) {
         folder = folder.folder(folders[i]);
     }
-
     folder.file(folders[folders.length - 1], content);
 };
-
-function fileSizeIEC(a, b, c, d, e) {
-    return (b = Math, c = b.log, d = 1024, e = c(a) / c(d) | 0, a / b.pow(d, e)).toFixed(2) + " " + (e ? "KMGTPEZY"[--e] + "B" : "Bytes");
-}
